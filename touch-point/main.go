@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 
@@ -43,7 +44,11 @@ func work() error {
 
 func update(screen *ebiten.Image) error {
 	message := "touching points:\n"
-	for id := range ebiten.TouchIDs() {
+	IDs := ebiten.TouchIDs()
+	sort.Slice(IDs, func(i, j int) bool {
+		return IDs[i] < IDs[j]
+	})
+	for _, id := range IDs {
 		x, y := ebiten.TouchPosition(id)
 		message = fmt.Sprintf("%v x: %v, y: %v\n", message, x, y)
 	}
