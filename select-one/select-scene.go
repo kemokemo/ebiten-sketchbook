@@ -5,8 +5,7 @@ import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/inpututil"
-	"github.com/kemokemo/ebiten-sketchbook/select-character/internal/ui"
+	"github.com/kemokemo/ebiten-sketchbook/select-one/internal/ui"
 )
 
 const (
@@ -76,14 +75,10 @@ func (s *SelectScene) Draw(r *ebiten.Image) {
 }
 
 func (s *SelectScene) checkSelectorChanged() {
-	if inpututil.IsKeyJustPressed(ebiten.KeyRight) {
-		if int(s.selector) < len(s.windowMap)-1 {
-			s.selector++
-		}
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) {
-		if int(s.selector) > 0 {
-			s.selector--
+	for index := range s.windowMap {
+		if Touched(s.windowMap[index].GetWindowRect()) {
+			s.selector = index
+			return
 		}
 	}
 }
