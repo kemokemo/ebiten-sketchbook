@@ -7,8 +7,8 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
-// Touched returns the state that touched or not.
-func Touched(r image.Rectangle) bool {
+// IsTouched returns the state that touched or not.
+func IsTouched(r image.Rectangle) bool {
 	IDs := ebiten.TouchIDs()
 	if len(IDs) == 0 {
 		return false

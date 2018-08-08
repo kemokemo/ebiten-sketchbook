@@ -76,7 +76,7 @@ func (s *SelectScene) Draw(r *ebiten.Image) {
 
 func (s *SelectScene) checkSelectorChanged() {
 	for index := range s.windowMap {
-		if Touched(s.windowMap[index].GetWindowRect()) {
+		if IsTouched(s.windowMap[index].GetWindowRect()) {
 			s.selector = index
 			return
 		}
