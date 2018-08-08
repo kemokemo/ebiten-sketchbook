@@ -32,7 +32,7 @@ func run(args []string) int {
 }
 
 func work() error {
-	err := ebiten.Run(update, screenWidth, screenHeight, 2, "Select character")
+	err := ebiten.Run(update, screenWidth, screenHeight, 2, "Select one")
 	if err != nil {
 		return err
 	}
