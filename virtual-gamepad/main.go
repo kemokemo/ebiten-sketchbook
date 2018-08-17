@@ -47,10 +47,17 @@ func work() error {
 }
 
 func update(screen *ebiten.Image) error {
+	// You need update before skipping!
+	err := gameScene.Update()
+	if err != nil {
+		return err
+	}
+
+	// If slowly, you can skip drawing.
 	if ebiten.IsRunningSlowly() {
 		return nil
 	}
-	err := gameScene.Draw(screen)
+	err = gameScene.Draw(screen)
 	if err != nil {
 		return err
 	}

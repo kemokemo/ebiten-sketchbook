@@ -16,6 +16,7 @@ import (
 type directionalButton struct {
 	baseImg    *ebiten.Image
 	selected   bool
+	rectangle  image.Rectangle
 	normalOp   *ebiten.DrawImageOptions
 	selectedOp *ebiten.DrawImageOptions
 }
@@ -33,6 +34,7 @@ func newDirectionalButton(x, y, degree int) (*directionalButton, error) {
 	}
 
 	w, h := d.baseImg.Size()
+	d.rectangle = image.Rect(x, y, x+w, y+h)
 	halfW := float64(w) / 2
 	halfH := float64(h) / 2
 
@@ -67,6 +69,10 @@ func (d *directionalButton) Draw(screen *ebiten.Image) error {
 		return screen.DrawImage(d.baseImg, d.selectedOp)
 	}
 	return screen.DrawImage(d.baseImg, d.normalOp)
+}
+
+func (d *directionalButton) GetRectangle() image.Rectangle {
+	return d.rectangle
 }
 
 func colorScale(clr color.Color) (rf, gf, bf, af float64) {

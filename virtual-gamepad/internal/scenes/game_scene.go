@@ -13,12 +13,17 @@ type GameScene struct {
 // NewGameScene returns a new GemeScene instance.
 func NewGameScene(width, height int) (*GameScene, error) {
 	g := &GameScene{}
-	d, err := pad.NewDirectionalPad(10, height-110)
+	d, err := pad.NewDirectionalPad(80, height-130)
 	if err != nil {
 		return nil, err
 	}
 	g.dpad = d
 	return g, nil
+}
+
+// Update updates the inner state of this scene.
+func (g *GameScene) Update() error {
+	return g.dpad.Update()
 }
 
 // Draw draws the objects contained in this scene.
