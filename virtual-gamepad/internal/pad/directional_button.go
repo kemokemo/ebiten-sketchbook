@@ -22,7 +22,7 @@ type directionalButton struct {
 }
 
 // newDirectionalButton returns a new DirectionalButton.
-func newDirectionalButton(x, y, degree int) (*directionalButton, error) {
+func newDirectionalButton(degree int) (*directionalButton, error) {
 	d := &directionalButton{}
 	img, _, err := image.Decode(bytes.NewReader(images.Directional_button_png))
 	if err != nil {
@@ -34,7 +34,6 @@ func newDirectionalButton(x, y, degree int) (*directionalButton, error) {
 	}
 
 	w, h := d.baseImg.Size()
-	d.rectangle = image.Rect(x, y, x+w, y+h)
 	halfW := float64(w) / 2
 	halfH := float64(h) / 2
 
@@ -42,7 +41,6 @@ func newDirectionalButton(x, y, degree int) (*directionalButton, error) {
 	d.normalOp.GeoM.Translate(-halfW, -halfH)
 	d.normalOp.GeoM.Rotate(float64(degree) * 2 * math.Pi / 360)
 	d.normalOp.GeoM.Translate(getRePosition(halfW, halfH, degree))
-	d.normalOp.GeoM.Translate(float64(x), float64(y))
 
 	d.selectedOp = &ebiten.DrawImageOptions{}
 	d.selectedOp.GeoM.Add(d.normalOp.GeoM)
@@ -56,6 +54,14 @@ func getRePosition(halfW, halfH float64, degree int) (float64, float64) {
 		return halfH, halfW
 	}
 	return halfW, halfH
+}
+
+func (d *directionalButton) SetLocation(x, y int) {
+	w, h := d.baseImg.Size()
+	d.rectangle = image.Rect(x-40, y-20, x+w, y+h+20)
+
+	d.normalOp.GeoM.Translate(float64(x), float64(y))
+	d.selectedOp.GeoM.Translate(float64(x), float64(y))
 }
 
 // SelectButton sets the argument for selected flag of this button.

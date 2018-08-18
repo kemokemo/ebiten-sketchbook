@@ -24,7 +24,7 @@ type DirectionalPad struct {
 }
 
 // NewDirectionalPad returns a new DirectionalPad.
-func NewDirectionalPad(x, y int) (*DirectionalPad, error) {
+func NewDirectionalPad() (*DirectionalPad, error) {
 	dp := &DirectionalPad{}
 	img, _, err := image.Decode(bytes.NewReader(images.Directional_pad_png))
 	if err != nil {
@@ -36,25 +36,30 @@ func NewDirectionalPad(x, y int) (*DirectionalPad, error) {
 	}
 
 	dp.op = &ebiten.DrawImageOptions{}
-	dp.op.GeoM.Translate(float64(x), float64(y))
 
-	err = dp.createButtons(x, y)
+	err = dp.createButtons()
 	if err != nil {
 		return nil, err
 	}
 	return dp, nil
 }
 
-func (dp *DirectionalPad) createButtons(x, y int) error {
+func (dp *DirectionalPad) createButtons() error {
 	if dp.buttons == nil {
 		dp.buttons = make(map[Direction]*directionalButton, 4)
 	}
-	b, err := newDirectionalButton(x+longMargin, y+35+shortMargin, -90)
+	b, err := newDirectionalButton(-90)
 	if err != nil {
 		return err
 	}
 	dp.buttons[Left] = b
 	return nil
+}
+
+// SetLocation sets the location to draw this directional pad.
+func (dp *DirectionalPad) SetLocation(x, y int) {
+	dp.op.GeoM.Translate(float64(x), float64(y))
+	dp.buttons[Left].SetLocation(x+10+longMargin, y+45+shortMargin)
 }
 
 // Update updates the internal status of this struct.

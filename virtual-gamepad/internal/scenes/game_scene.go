@@ -13,10 +13,11 @@ type GameScene struct {
 // NewGameScene returns a new GemeScene instance.
 func NewGameScene(width, height int) (*GameScene, error) {
 	g := &GameScene{}
-	d, err := pad.NewDirectionalPad(80, height-130)
+	d, err := pad.NewDirectionalPad()
 	if err != nil {
 		return nil, err
 	}
+	d.SetLocation(100, height-150)
 	g.dpad = d
 	return g, nil
 }
