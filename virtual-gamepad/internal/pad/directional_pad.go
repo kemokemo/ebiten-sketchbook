@@ -6,7 +6,6 @@ import (
 	"sort"
 
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/images"
 )
 
@@ -90,14 +89,24 @@ func (dp *DirectionalPad) updateDirection() {
 		return
 	}
 
-	// Just touched!
-	jIDs := inpututil.JustPressedTouchIDs()
-	sort.Slice(jIDs, func(i, j int) bool {
-		return jIDs[i] < jIDs[j]
+	// If the button pressed in the previous frame is continuously touched,
+	// ignore the other direction keys.
+	if dp.selectedDirection != None {
+		for i := range IDs {
+			if isTouched(IDs[i], dp.buttons[dp.selectedDirection].GetRectangle()) {
+				return
+			}
+		}
+	}
+
+	// Find the newly touched direction key.
+	// Prioritize the position of the one that started touch first.
+	sort.Slice(IDs, func(i, j int) bool {
+		return IDs[i] < IDs[j]
 	})
-	for index := range jIDs {
+	for index := range IDs {
 		for key := range dp.buttons {
-			if isTouched(jIDs[index], dp.buttons[key].GetRectangle()) {
+			if isTouched(IDs[index], dp.buttons[key].GetRectangle()) {
 				dp.selectedDirection = key
 				return
 			}
