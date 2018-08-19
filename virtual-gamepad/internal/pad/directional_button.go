@@ -52,7 +52,7 @@ func newDirectionalButton(direc Direction) (*directionalButton, error) {
 	d.normalOp.GeoM.Translate(getRePosition(halfW, halfH, degree))
 
 	d.selectedOp = &ebiten.DrawImageOptions{}
-	d.selectedOp.GeoM.Add(d.normalOp.GeoM)
+	d.selectedOp.GeoM.Concat(d.normalOp.GeoM)
 	d.selectedOp.ColorM.Scale(colorScale(color.RGBA{0, 148, 255, 255}))
 
 	return d, nil

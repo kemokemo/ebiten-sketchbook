@@ -38,7 +38,7 @@ func (t *TriggerButton) SetLocation(x, y int) {
 	t.rectangle = image.Rect(x, y, x+w, y+h)
 
 	t.normalOp.GeoM.Translate(float64(x), float64(y))
-	t.selectedOp.GeoM.Add(t.normalOp.GeoM)
+	t.selectedOp.GeoM.Concat(t.normalOp.GeoM)
 }
 
 // Update updates the internal state of this button.
