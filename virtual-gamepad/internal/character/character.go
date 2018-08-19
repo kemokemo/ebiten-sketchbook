@@ -11,8 +11,11 @@ import (
 
 // MainCharacter is the main character for users to control.
 type MainCharacter struct {
-	baseImg  *ebiten.Image
-	normalOp *ebiten.DrawImageOptions
+	baseImg    *ebiten.Image
+	normalOp   *ebiten.DrawImageOptions
+	size       image.Point
+	area       image.Rectangle
+	currentPos image.Point
 }
 
 // NewMainCharacter returns a main character.
@@ -26,6 +29,8 @@ func NewMainCharacter() (*MainCharacter, error) {
 	if err != nil {
 		return nil, err
 	}
+	w, h := m.baseImg.Size()
+	m.size = image.Point{w, h}
 
 	m.normalOp = &ebiten.DrawImageOptions{}
 	return m, nil
@@ -34,7 +39,20 @@ func NewMainCharacter() (*MainCharacter, error) {
 // SetLocation sets the location to draw this character.
 func (m *MainCharacter) SetLocation(x, y int) {
 	m.normalOp.GeoM.Reset()
+
+	m.currentPos.X = x
+	m.currentPos.Y = y
 	m.normalOp.GeoM.Translate(float64(x), float64(y))
+}
+
+// SetArea sets the area for this character to move.
+func (m *MainCharacter) SetArea(rect image.Rectangle) {
+	m.area = rect
+}
+
+// GetSize returns the size this character.
+func (m *MainCharacter) GetSize() image.Point {
+	return m.size
 }
 
 // Update updates the internal state.
@@ -43,18 +61,35 @@ func (m *MainCharacter) Update() {
 }
 
 // Move moves this character regarding the direction.
+// Do not move if the destination is outside the area.
 func (m *MainCharacter) Move(direc pad.Direction) {
 	switch direc {
 	case pad.Left:
+		if m.area.Min.X > m.currentPos.X-2 {
+			return
+		}
+		m.currentPos.X -= 2
 		m.normalOp.GeoM.Translate(float64(-2), 0.0)
 	case pad.Up:
+		if m.area.Min.Y > m.currentPos.Y-2 {
+			return
+		}
+		m.currentPos.Y -= 2
 		m.normalOp.GeoM.Translate(0.0, float64(-2))
 	case pad.Right:
+		if m.area.Max.X < m.currentPos.X+m.size.X+2 {
+			return
+		}
+		m.currentPos.X += 2
 		m.normalOp.GeoM.Translate(float64(2), 0.0)
 	case pad.Down:
+		if m.area.Max.Y < m.currentPos.Y+m.size.Y+2 {
+			return
+		}
+		m.currentPos.Y += 2
 		m.normalOp.GeoM.Translate(0.0, float64(2))
 	default:
-
+		return
 	}
 }
 

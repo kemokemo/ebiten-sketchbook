@@ -105,7 +105,13 @@ func (g *GameScene) createCharacter(width, height int) error {
 	if err != nil {
 		return err
 	}
-	g.mainChara.SetLocation(int(width/2), int(height/2))
+
+	rect := g.window.GetWindowRect()
+	size := g.mainChara.GetSize()
+	g.mainChara.SetLocation(
+		rect.Min.X+rect.Size().X/2-size.X/2,
+		rect.Max.Y-size.Y-2)
+	g.mainChara.SetArea(rect)
 	return nil
 }
 
