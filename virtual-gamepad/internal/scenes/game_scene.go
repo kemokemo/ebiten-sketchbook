@@ -10,6 +10,8 @@ import (
 // GameScene is the scene of the main game screen.
 type GameScene struct {
 	dpad    *pad.DirectionalPad
+	aButton *pad.TriggerButton
+	bButton *pad.TriggerButton
 	baseImg *ebiten.Image
 	op      *ebiten.DrawImageOptions
 }
@@ -17,18 +19,29 @@ type GameScene struct {
 // NewGameScene returns a new GemeScene instance.
 func NewGameScene(width, height int) (*GameScene, error) {
 	g := &GameScene{}
-
 	err := g.createImage(width, height)
 	if err != nil {
 		return nil, err
 	}
 
-	d, err := pad.NewDirectionalPad()
+	g.dpad, err = pad.NewDirectionalPad()
 	if err != nil {
 		return nil, err
 	}
-	d.SetLocation(30, height-150)
-	g.dpad = d
+	g.dpad.SetLocation(30, height-150)
+
+	g.aButton, err = pad.NewTriggerButton(pad.AButton)
+	if err != nil {
+		return nil, err
+	}
+	g.aButton.SetLocation(width-120, height-130)
+
+	g.bButton, err = pad.NewTriggerButton(pad.BButton)
+	if err != nil {
+		return nil, err
+	}
+	g.bButton.SetLocation(width-230, height-130)
+
 	return g, nil
 }
 
@@ -49,6 +62,8 @@ func (g *GameScene) createImage(width, height int) error {
 
 // Update updates the inner state of this scene.
 func (g *GameScene) Update() error {
+	g.aButton.Update()
+	g.bButton.Update()
 	return g.dpad.Update()
 }
 
@@ -58,5 +73,15 @@ func (g *GameScene) Draw(screen *ebiten.Image) error {
 	if err != nil {
 		return err
 	}
+
+	err = g.aButton.Draw(screen)
+	if err != nil {
+		return err
+	}
+	err = g.bButton.Draw(screen)
+	if err != nil {
+		return err
+	}
+
 	return g.dpad.Draw(screen)
 }

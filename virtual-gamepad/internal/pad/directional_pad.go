@@ -144,13 +144,3 @@ func (dp *DirectionalPad) Draw(screen *ebiten.Image) error {
 func (dp *DirectionalPad) GetDirection() Direction {
 	return dp.selectedDirection
 }
-
-func isTouched(touchedID int, bounds image.Rectangle) bool {
-	x, y := ebiten.TouchPosition(touchedID)
-	min := bounds.Min
-	max := bounds.Max
-	if min.X < x && x < max.X && min.Y < y && y < max.Y {
-		return true
-	}
-	return false
-}

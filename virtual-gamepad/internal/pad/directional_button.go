@@ -107,16 +107,3 @@ func (d *directionalButton) GetRectangle() image.Rectangle {
 func (d *directionalButton) Size() (width int, height int) {
 	return d.baseImg.Size()
 }
-
-func colorScale(clr color.Color) (rf, gf, bf, af float64) {
-	r, g, b, a := clr.RGBA()
-	if a == 0 {
-		return 0, 0, 0, 0
-	}
-
-	rf = float64(r) / float64(a)
-	gf = float64(g) / float64(a)
-	bf = float64(b) / float64(a)
-	af = float64(a) / 0xffff
-	return
-}
