@@ -70,7 +70,7 @@ func (m *MainCharacter) Move(direc pad.Direction) {
 		}
 		m.currentPos.X -= 2
 		m.normalOp.GeoM.Translate(float64(-2), 0.0)
-	case pad.Up:
+	case pad.Upper:
 		if m.area.Min.Y > m.currentPos.Y-2 {
 			return
 		}
@@ -82,7 +82,7 @@ func (m *MainCharacter) Move(direc pad.Direction) {
 		}
 		m.currentPos.X += 2
 		m.normalOp.GeoM.Translate(float64(2), 0.0)
-	case pad.Down:
+	case pad.Lower:
 		if m.area.Max.Y < m.currentPos.Y+m.size.Y+2 {
 			return
 		}

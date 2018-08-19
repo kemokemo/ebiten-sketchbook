@@ -10,10 +10,10 @@ const (
 	Left
 	// Right is right direction.
 	Right
-	// Up is the upper direction.
-	Up
-	// Down is the lower direction.
-	Down
+	// Upper is the upper direction.
+	Upper
+	// Lower is the lower direction.
+	Lower
 )
 
 func getDirectionDegree(d Direction) int {
@@ -22,7 +22,7 @@ func getDirectionDegree(d Direction) int {
 		return -90
 	case Right:
 		return 90
-	case Down:
+	case Lower:
 		return 180
 	default:
 		return 0

@@ -80,9 +80,9 @@ func (d *directionalButton) calcRectangle(x, y int) {
 		d.rectangle = image.Rect(x-h, y-w, x+h, y+w*2)
 	case Right:
 		d.rectangle = image.Rect(x, y-w, x+h*2, y+w*2)
-	case Up:
+	case Upper:
 		d.rectangle = image.Rect(x-w, y-h, x+w*2, y+h)
-	case Down:
+	case Lower:
 		d.rectangle = image.Rect(x-w, y, x+w*2, y+h*2)
 	}
 }
