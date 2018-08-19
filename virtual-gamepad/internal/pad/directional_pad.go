@@ -10,11 +10,6 @@ import (
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/images"
 )
 
-const (
-	shortMargin = 3
-	longMargin  = 5
-)
-
 // DirectionalPad is the directional pad for a game.
 type DirectionalPad struct {
 	baseImg           *ebiten.Image
@@ -48,18 +43,35 @@ func (dp *DirectionalPad) createButtons() error {
 	if dp.buttons == nil {
 		dp.buttons = make(map[Direction]*directionalButton, 4)
 	}
-	b, err := newDirectionalButton(-90)
+
+	b, err := newDirectionalButton(Left)
 	if err != nil {
 		return err
 	}
 	dp.buttons[Left] = b
+
+	b, err = newDirectionalButton(Up)
+	if err != nil {
+		return err
+	}
+	dp.buttons[Up] = b
+
 	return nil
 }
 
 // SetLocation sets the location to draw this directional pad.
 func (dp *DirectionalPad) SetLocation(x, y int) {
 	dp.op.GeoM.Translate(float64(x), float64(y))
-	dp.buttons[Left].SetLocation(x+10+longMargin, y+45+shortMargin)
+
+	wp, _ := dp.baseImg.Size()
+	halfWp := int(wp / 2)
+	wb, _ := dp.buttons[Left].Size()
+	halfWb := int(wb / 2)
+	outerMargin := int(0.25 * float64(halfWp))
+	//innerMargin := int(0.08 * float64(halfWp))
+
+	dp.buttons[Left].SetLocation(x+outerMargin, y+halfWp-halfWb)
+	dp.buttons[Up].SetLocation(x+halfWp-halfWb, y+outerMargin)
 }
 
 // Update updates the internal status of this struct.
@@ -72,33 +84,35 @@ func (dp *DirectionalPad) Update() error {
 
 func (dp *DirectionalPad) updateDirection() {
 	IDs := ebiten.TouchIDs()
+
+	// There are no touches
 	if len(IDs) == 0 {
 		dp.selectedDirection = None
 		return
 	}
 
+	// Just touched!
 	jIDs := inpututil.JustPressedTouchIDs()
-	if len(jIDs) == 0 && dp.selectedDirection == None {
-		return
-	}
-
 	sort.Slice(jIDs, func(i, j int) bool {
 		return jIDs[i] < jIDs[j]
 	})
 	for index := range jIDs {
-		if isTouched(jIDs[index], dp.buttons[Left].GetRectangle()) {
-			dp.selectedDirection = Left
-			return
+		for key := range dp.buttons {
+			if isTouched(jIDs[index], dp.buttons[key].GetRectangle()) {
+				dp.selectedDirection = key
+				return
+			}
 		}
 	}
 }
 
 func (dp *DirectionalPad) updateButtons() {
 	for key := range dp.buttons {
-		dp.buttons[key].SelectButton(false)
-	}
-	if dp.selectedDirection != None {
-		dp.buttons[dp.selectedDirection].SelectButton(true)
+		if key == dp.selectedDirection {
+			dp.buttons[key].SelectButton(true)
+		} else {
+			dp.buttons[key].SelectButton(false)
+		}
 	}
 }
 

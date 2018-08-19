@@ -15,3 +15,16 @@ const (
 	// Down is the lower direction.
 	Down
 )
+
+func getDirectionDegree(d Direction) int {
+	switch d {
+	case Left:
+		return -90
+	case Right:
+		return 90
+	case Down:
+		return 180
+	default:
+		return 0
+	}
+}

@@ -12,17 +12,23 @@ import (
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/images"
 )
 
+const (
+	longMargin  = 40
+	shortMargin = 20
+)
+
 // debugirectionalButton is the button of the directional pad.
 type directionalButton struct {
 	baseImg    *ebiten.Image
 	selected   bool
+	direction  Direction
 	rectangle  image.Rectangle
 	normalOp   *ebiten.DrawImageOptions
 	selectedOp *ebiten.DrawImageOptions
 }
 
 // newDirectionalButton returns a new DirectionalButton.
-func newDirectionalButton(degree int) (*directionalButton, error) {
+func newDirectionalButton(direc Direction) (*directionalButton, error) {
 	d := &directionalButton{}
 	img, _, err := image.Decode(bytes.NewReader(images.Directional_button_png))
 	if err != nil {
@@ -36,6 +42,9 @@ func newDirectionalButton(degree int) (*directionalButton, error) {
 	w, h := d.baseImg.Size()
 	halfW := float64(w) / 2
 	halfH := float64(h) / 2
+
+	d.direction = direc
+	degree := getDirectionDegree(direc)
 
 	d.normalOp = &ebiten.DrawImageOptions{}
 	d.normalOp.GeoM.Translate(-halfW, -halfH)
@@ -57,11 +66,25 @@ func getRePosition(halfW, halfH float64, degree int) (float64, float64) {
 }
 
 func (d *directionalButton) SetLocation(x, y int) {
-	w, h := d.baseImg.Size()
-	d.rectangle = image.Rect(x-40, y-20, x+w, y+h+20)
+	d.calcRectangle(x, y)
 
 	d.normalOp.GeoM.Translate(float64(x), float64(y))
 	d.selectedOp.GeoM.Translate(float64(x), float64(y))
+}
+
+func (d *directionalButton) calcRectangle(x, y int) {
+	w, h := d.baseImg.Size()
+
+	switch d.direction {
+	case Left:
+		d.rectangle = image.Rect(x-h, y-w, x+h, y+w*2)
+	case Right:
+		d.rectangle = image.Rect(x, y-w, x+h*2, y+w*2)
+	case Up:
+		d.rectangle = image.Rect(x-w, y-h, x+w*2, y+h)
+	case Down:
+		d.rectangle = image.Rect(x-w, y, x+w*2, y+h*2)
+	}
 }
 
 // SelectButton sets the argument for selected flag of this button.
@@ -79,6 +102,10 @@ func (d *directionalButton) Draw(screen *ebiten.Image) error {
 
 func (d *directionalButton) GetRectangle() image.Rectangle {
 	return d.rectangle
+}
+
+func (d *directionalButton) Size() (width int, height int) {
+	return d.baseImg.Size()
 }
 
 func colorScale(clr color.Color) (rf, gf, bf, af float64) {
