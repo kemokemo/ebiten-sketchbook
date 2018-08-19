@@ -4,18 +4,20 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten"
+	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/character"
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/pad"
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/ui"
 )
 
 // GameScene is the scene of the main game screen.
 type GameScene struct {
-	dpad    *pad.DirectionalPad
-	aButton *pad.TriggerButton
-	bButton *pad.TriggerButton
-	baseImg *ebiten.Image
-	op      *ebiten.DrawImageOptions
-	window  *ui.FrameWindow
+	dpad      *pad.DirectionalPad
+	aButton   *pad.TriggerButton
+	bButton   *pad.TriggerButton
+	baseImg   *ebiten.Image
+	op        *ebiten.DrawImageOptions
+	window    *ui.FrameWindow
+	mainChara *character.MainCharacter
 }
 
 // NewGameScene returns a new GemeScene instance.
@@ -32,6 +34,11 @@ func NewGameScene(width, height int) (*GameScene, error) {
 	}
 
 	err = g.createWindow(width, height)
+	if err != nil {
+		return nil, err
+	}
+
+	err = g.createCharacter(width, height)
 	if err != nil {
 		return nil, err
 	}
@@ -92,11 +99,27 @@ func (g *GameScene) createWindow(width, height int) error {
 	return nil
 }
 
+func (g *GameScene) createCharacter(width, height int) error {
+	var err error
+	g.mainChara, err = character.NewMainCharacter()
+	if err != nil {
+		return err
+	}
+	g.mainChara.SetLocation(int(width/2), int(height/2))
+	return nil
+}
+
 // Update updates the inner state of this scene.
 func (g *GameScene) Update() error {
 	g.aButton.Update()
 	g.bButton.Update()
-	return g.dpad.Update()
+
+	err := g.dpad.Update()
+	if err != nil {
+		return err
+	}
+	g.mainChara.Move(g.dpad.GetDirection())
+	return nil
 }
 
 // Draw draws the objects contained in this scene.
@@ -121,5 +144,10 @@ func (g *GameScene) Draw(screen *ebiten.Image) error {
 	}
 
 	g.window.DrawWindow(screen)
+	err = g.mainChara.Draw(screen)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
