@@ -3,7 +3,7 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:versionCode="1"
 	android:versionName="1.0"
-	package="org.golang.todo.slect_one"
+	package="org.golang.todo.select_one"
 	platformBuildVersionCode="15"
 	platformBuildVersionName="4.0.4-1406430">
 	<application
