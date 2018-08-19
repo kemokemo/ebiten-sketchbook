@@ -5,6 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/pad"
+	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/ui"
 )
 
 // GameScene is the scene of the main game screen.
@@ -14,6 +15,7 @@ type GameScene struct {
 	bButton *pad.TriggerButton
 	baseImg *ebiten.Image
 	op      *ebiten.DrawImageOptions
+	window  *ui.FrameWindow
 }
 
 // NewGameScene returns a new GemeScene instance.
@@ -24,23 +26,15 @@ func NewGameScene(width, height int) (*GameScene, error) {
 		return nil, err
 	}
 
-	g.dpad, err = pad.NewDirectionalPad()
+	err = g.createButtons(width, height)
 	if err != nil {
 		return nil, err
 	}
-	g.dpad.SetLocation(30, height-150)
 
-	g.aButton, err = pad.NewTriggerButton(pad.AButton)
+	err = g.createWindow(width, height)
 	if err != nil {
 		return nil, err
 	}
-	g.aButton.SetLocation(width-120, height-130)
-
-	g.bButton, err = pad.NewTriggerButton(pad.BButton)
-	if err != nil {
-		return nil, err
-	}
-	g.bButton.SetLocation(width-230, height-130)
 
 	return g, nil
 }
@@ -57,6 +51,44 @@ func (g *GameScene) createImage(width, height int) error {
 	}
 	g.op = &ebiten.DrawImageOptions{}
 
+	return nil
+}
+
+func (g *GameScene) createButtons(width, height int) error {
+	var err error
+	g.dpad, err = pad.NewDirectionalPad()
+	if err != nil {
+		return err
+	}
+	g.dpad.SetLocation(30, height-150)
+
+	g.aButton, err = pad.NewTriggerButton(pad.AButton)
+	if err != nil {
+		return err
+	}
+	g.aButton.SetLocation(width-120, height-130)
+
+	g.bButton, err = pad.NewTriggerButton(pad.BButton)
+	if err != nil {
+		return err
+	}
+	g.bButton.SetLocation(width-230, height-130)
+
+	return nil
+}
+
+func (g *GameScene) createWindow(width, height int) error {
+	var err error
+	margin := 12
+	g.window, err = ui.NewFrameWindow(margin, margin, width-margin*2, height-180, 2)
+	if err != nil {
+		return err
+	}
+	g.window.SetColors(
+		color.RGBA{27, 24, 44, 255},
+		color.RGBA{255, 255, 255, 255},
+		color.RGBA{0, 148, 255, 255},
+	)
 	return nil
 }
 
@@ -83,5 +115,11 @@ func (g *GameScene) Draw(screen *ebiten.Image) error {
 		return err
 	}
 
-	return g.dpad.Draw(screen)
+	err = g.dpad.Draw(screen)
+	if err != nil {
+		return err
+	}
+
+	g.window.DrawWindow(screen)
+	return nil
 }
