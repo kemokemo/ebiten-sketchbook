@@ -44,17 +44,14 @@ func (dp *DirectionalPad) createButtons() error {
 		dp.buttons = make(map[Direction]*directionalButton, 4)
 	}
 
-	b, err := newDirectionalButton(Left)
-	if err != nil {
-		return err
+	ds := []Direction{Left, Up, Right, Down}
+	for _, direc := range ds {
+		b, err := newDirectionalButton(direc)
+		if err != nil {
+			return err
+		}
+		dp.buttons[direc] = b
 	}
-	dp.buttons[Left] = b
-
-	b, err = newDirectionalButton(Up)
-	if err != nil {
-		return err
-	}
-	dp.buttons[Up] = b
 
 	return nil
 }
@@ -68,10 +65,12 @@ func (dp *DirectionalPad) SetLocation(x, y int) {
 	wb, _ := dp.buttons[Left].Size()
 	halfWb := int(wb / 2)
 	outerMargin := int(0.25 * float64(halfWp))
-	//innerMargin := int(0.08 * float64(halfWp))
+	innerMargin := int(0.08 * float64(halfWp))
 
 	dp.buttons[Left].SetLocation(x+outerMargin, y+halfWp-halfWb)
 	dp.buttons[Up].SetLocation(x+halfWp-halfWb, y+outerMargin)
+	dp.buttons[Right].SetLocation(x+halfWp+innerMargin, y+halfWp-halfWb)
+	dp.buttons[Down].SetLocation(x+halfWp-halfWb, y+halfWp+innerMargin)
 }
 
 // Update updates the internal status of this struct.

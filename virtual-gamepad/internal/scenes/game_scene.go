@@ -17,7 +17,7 @@ func NewGameScene(width, height int) (*GameScene, error) {
 	if err != nil {
 		return nil, err
 	}
-	d.SetLocation(100, height-150)
+	d.SetLocation(30, height-150)
 	g.dpad = d
 	return g, nil
 }
