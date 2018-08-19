@@ -67,19 +67,19 @@ func (g *GameScene) createButtons(width, height int) error {
 	if err != nil {
 		return err
 	}
-	g.dpad.SetLocation(30, height-150)
+	g.dpad.SetLocation(10, height-130)
 
 	g.aButton, err = pad.NewTriggerButton(pad.AButton)
 	if err != nil {
 		return err
 	}
-	g.aButton.SetLocation(width-120, height-130)
+	g.aButton.SetLocation(width-120, height-220)
 
 	g.bButton, err = pad.NewTriggerButton(pad.BButton)
 	if err != nil {
 		return err
 	}
-	g.bButton.SetLocation(width-230, height-130)
+	g.bButton.SetLocation(width-120, height-110)
 
 	return nil
 }
@@ -87,7 +87,7 @@ func (g *GameScene) createButtons(width, height int) error {
 func (g *GameScene) createWindow(width, height int) error {
 	var err error
 	margin := 12
-	g.window, err = ui.NewFrameWindow(margin, margin, width-margin*2, height-180, 2)
+	g.window, err = ui.NewFrameWindow(140, margin, width-140*2, height-margin*2, 2)
 	if err != nil {
 		return err
 	}
