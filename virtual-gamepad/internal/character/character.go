@@ -64,6 +64,25 @@ func (m *MainCharacter) Update() {
 // Do not move if the destination is outside the area.
 func (m *MainCharacter) Move(direc pad.Direction) {
 	switch direc {
+	case pad.UpperLeft:
+		m.move4direction(pad.Upper)
+		m.move4direction(pad.Left)
+	case pad.UpperRight:
+		m.move4direction(pad.Upper)
+		m.move4direction(pad.Right)
+	case pad.LowerLeft:
+		m.move4direction(pad.Lower)
+		m.move4direction(pad.Left)
+	case pad.LowerRight:
+		m.move4direction(pad.Lower)
+		m.move4direction(pad.Right)
+	default:
+		m.move4direction(direc)
+	}
+}
+
+func (m *MainCharacter) move4direction(direc pad.Direction) {
+	switch direc {
 	case pad.Left:
 		if m.area.Min.X > m.currentPos.X-2 {
 			return
@@ -91,6 +110,7 @@ func (m *MainCharacter) Move(direc pad.Direction) {
 	default:
 		return
 	}
+
 }
 
 // Draw draws this character.

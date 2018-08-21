@@ -89,38 +89,51 @@ func (dp *DirectionalPad) updateDirection() {
 		return
 	}
 
-	// If the button pressed in the previous frame is continuously touched,
-	// ignore the other direction keys.
-	if dp.selectedDirection != None {
-		for i := range IDs {
-			if isTouched(IDs[i], dp.buttons[dp.selectedDirection].GetRectangle()) {
-				return
-			}
-		}
-	}
-
+	directions := []Direction{}
 	// Find the newly touched direction key.
-	// Prioritize the position of the one that started touch first.
 	sort.Slice(IDs, func(i, j int) bool {
 		return IDs[i] < IDs[j]
 	})
 	for index := range IDs {
 		for key := range dp.buttons {
 			if isTouched(IDs[index], dp.buttons[key].GetRectangle()) {
-				dp.selectedDirection = key
-				return
+				directions = append(directions, key)
 			}
 		}
 	}
+	dp.defineDirection(directions)
+}
+
+func (dp *DirectionalPad) defineDirection(directions []Direction) {
+	current := None
+	for index := range directions {
+		current = getMergedDirection(current, directions[index])
+	}
+	dp.selectedDirection = current
 }
 
 func (dp *DirectionalPad) updateButtons() {
 	for key := range dp.buttons {
-		if key == dp.selectedDirection {
-			dp.buttons[key].SelectButton(true)
-		} else {
-			dp.buttons[key].SelectButton(false)
-		}
+		dp.buttons[key].SelectButton(false)
+	}
+	if dp.selectedDirection == None {
+		return
+	}
+
+	if dp.selectedDirection == UpperLeft {
+		dp.buttons[Upper].SelectButton(true)
+		dp.buttons[Left].SelectButton(true)
+	} else if dp.selectedDirection == UpperRight {
+		dp.buttons[Upper].SelectButton(true)
+		dp.buttons[Right].SelectButton(true)
+	} else if dp.selectedDirection == LowerLeft {
+		dp.buttons[Lower].SelectButton(true)
+		dp.buttons[Left].SelectButton(true)
+	} else if dp.selectedDirection == LowerRight {
+		dp.buttons[Lower].SelectButton(true)
+		dp.buttons[Right].SelectButton(true)
+	} else {
+		dp.buttons[dp.selectedDirection].SelectButton(true)
 	}
 }
 
