@@ -1,6 +1,7 @@
 package scenes
 
 import (
+	"image"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten"
@@ -17,7 +18,7 @@ type GameScene struct {
 	baseImg   *ebiten.Image
 	op        *ebiten.DrawImageOptions
 	window    *ui.FrameWindow
-	mainChara *character.MainCharacter
+	character *character.MainCharacter
 }
 
 // NewGameScene returns a new GemeScene instance.
@@ -38,7 +39,7 @@ func NewGameScene(width, height int) (*GameScene, error) {
 		return nil, err
 	}
 
-	err = g.createCharacter(width, height)
+	err = g.createCharacter(g.window.GetWindowRect())
 	if err != nil {
 		return nil, err
 	}
@@ -99,32 +100,36 @@ func (g *GameScene) createWindow(width, height int) error {
 	return nil
 }
 
-func (g *GameScene) createCharacter(width, height int) error {
-	var err error
-	g.mainChara, err = character.NewMainCharacter()
+func (g *GameScene) createCharacter(area image.Rectangle) error {
+	c, err := character.NewMainCharacter(area)
 	if err != nil {
 		return err
 	}
+	g.character = c
 
-	rect := g.window.GetWindowRect()
-	size := g.mainChara.GetSize()
-	g.mainChara.SetLocation(
-		rect.Min.X+rect.Size().X/2-size.X/2,
-		rect.Max.Y-size.Y-2)
-	g.mainChara.SetArea(rect)
+	cSize := g.character.Size()
+	wSize := area.Size()
+	g.character.SetLocation(
+		image.Point{
+			X: area.Min.X + wSize.X/2 - cSize.X/2,
+			Y: area.Max.Y - cSize.Y - 2,
+		})
 	return nil
 }
 
 // Update updates the inner state of this scene.
 func (g *GameScene) Update() error {
-	g.aButton.Update()
-	g.bButton.Update()
-
 	err := g.dpad.Update()
 	if err != nil {
 		return err
 	}
-	g.mainChara.Move(g.dpad.GetDirection())
+	g.character.Move(g.dpad.GetDirection())
+
+	g.aButton.Update()
+	g.bButton.Update()
+	if g.bButton.IsTriggered() {
+		g.character.Fire()
+	}
 	return nil
 }
 
@@ -150,7 +155,7 @@ func (g *GameScene) Draw(screen *ebiten.Image) error {
 	}
 
 	g.window.DrawWindow(screen)
-	err = g.mainChara.Draw(screen)
+	err = g.character.Draw(screen)
 	if err != nil {
 		return err
 	}

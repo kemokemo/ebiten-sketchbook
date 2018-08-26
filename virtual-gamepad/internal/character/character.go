@@ -5,22 +5,27 @@ import (
 	"image"
 
 	"github.com/hajimehoshi/ebiten"
+	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/bullet"
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/images"
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/pad"
 )
 
 // MainCharacter is the main character for users to control.
 type MainCharacter struct {
-	baseImg    *ebiten.Image
-	normalOp   *ebiten.DrawImageOptions
-	size       image.Point
-	area       image.Rectangle
-	currentPos image.Point
+	baseImg      *ebiten.Image
+	normalOp     *ebiten.DrawImageOptions
+	size         image.Point
+	area         image.Rectangle
+	point        image.Point
+	bullets      [30]*bullet.Bullet
+	bulletsIndex int
 }
 
-// NewMainCharacter returns a main character.
-func NewMainCharacter() (*MainCharacter, error) {
-	m := &MainCharacter{}
+// NewMainCharacter returns a character.
+// Please set the area of movement.
+func NewMainCharacter(area image.Rectangle) (*MainCharacter, error) {
+	m := &MainCharacter{area: area}
+
 	img, _, err := image.Decode(bytes.NewReader(images.Fighter_png))
 	if err != nil {
 		return nil, err
@@ -30,34 +35,63 @@ func NewMainCharacter() (*MainCharacter, error) {
 		return nil, err
 	}
 	w, h := m.baseImg.Size()
-	m.size = image.Point{w, h}
-
+	m.size = image.Point{X: w, Y: h}
 	m.normalOp = &ebiten.DrawImageOptions{}
+
+	err = m.createBullets(area)
+	if err != nil {
+		return nil, err
+	}
 	return m, nil
 }
 
+func (m *MainCharacter) createBullets(area image.Rectangle) error {
+	for index := 0; index < len(m.bullets); index++ {
+		b, err := bullet.NewBullet(image.Point{0, -3}, area)
+		if err != nil {
+			return err
+		}
+		m.bullets[index] = b
+	}
+	return nil
+}
+
 // SetLocation sets the location to draw this character.
-func (m *MainCharacter) SetLocation(x, y int) {
+func (m *MainCharacter) SetLocation(point image.Point) {
+	m.point = point
+
 	m.normalOp.GeoM.Reset()
-
-	m.currentPos.X = x
-	m.currentPos.Y = y
-	m.normalOp.GeoM.Translate(float64(x), float64(y))
+	m.normalOp.GeoM.Translate(float64(m.point.X), float64(m.point.Y))
 }
 
-// SetArea sets the area for this character to move.
-func (m *MainCharacter) SetArea(rect image.Rectangle) {
-	m.area = rect
-}
-
-// GetSize returns the size this character.
-func (m *MainCharacter) GetSize() image.Point {
+// Size returns the size of this character.
+func (m *MainCharacter) Size() image.Point {
 	return m.size
 }
 
 // Update updates the internal state.
 func (m *MainCharacter) Update() {
 	// TODO: Make a judgment with enemy bullets
+	for index := 0; index < len(m.bullets); index++ {
+		m.bullets[index].Update()
+	}
+}
+
+// Draw draws this character.
+func (m *MainCharacter) Draw(screen *ebiten.Image) error {
+	err := screen.DrawImage(m.baseImg, m.normalOp)
+	if err != nil {
+		return err
+	}
+
+	var e error
+	for index := 0; index < len(m.bullets); index++ {
+		e = m.bullets[index].Draw(screen)
+		if e != nil {
+			return e
+		}
+	}
+	return nil
 }
 
 // Move moves this character regarding the direction.
@@ -81,39 +115,38 @@ func (m *MainCharacter) Move(direc pad.Direction) {
 	}
 }
 
-func (m *MainCharacter) move4direction(direc pad.Direction) {
-	switch direc {
-	case pad.Left:
-		if m.area.Min.X > m.currentPos.X-2 {
-			return
-		}
-		m.currentPos.X -= 2
-		m.normalOp.GeoM.Translate(float64(-2), 0.0)
-	case pad.Upper:
-		if m.area.Min.Y > m.currentPos.Y-2 {
-			return
-		}
-		m.currentPos.Y -= 2
-		m.normalOp.GeoM.Translate(0.0, float64(-2))
-	case pad.Right:
-		if m.area.Max.X < m.currentPos.X+m.size.X+2 {
-			return
-		}
-		m.currentPos.X += 2
-		m.normalOp.GeoM.Translate(float64(2), 0.0)
-	case pad.Lower:
-		if m.area.Max.Y < m.currentPos.Y+m.size.Y+2 {
-			return
-		}
-		m.currentPos.Y += 2
-		m.normalOp.GeoM.Translate(0.0, float64(2))
-	default:
+func (m *MainCharacter) move4direction(d pad.Direction) {
+	movement := m.getMove((d))
+	moved := m.point.Add(movement)
+	if !moved.In(m.area) {
 		return
 	}
-
+	m.point = moved
+	m.normalOp.GeoM.Translate(float64(movement.X), float64(movement.Y))
 }
 
-// Draw draws this character.
-func (m *MainCharacter) Draw(screen *ebiten.Image) error {
-	return screen.DrawImage(m.baseImg, m.normalOp)
+func (m *MainCharacter) getMove(d pad.Direction) image.Point {
+	switch d {
+	case pad.Left:
+		return image.Point{-2, 0}
+	case pad.Upper:
+		return image.Point{0, -2}
+	case pad.Right:
+		return image.Point{2, 0}
+	case pad.Lower:
+		return image.Point{0, 2}
+	default:
+		return image.Point{0, 0}
+	}
+}
+
+// Fire fires some bullets.
+func (m *MainCharacter) Fire() {
+	if m.bulletsIndex < len(m.bullets)-1 {
+		m.bulletsIndex++
+	} else {
+		m.bulletsIndex = 0
+	}
+	m.bullets[m.bulletsIndex].Fire(image.Point{
+		m.point.X + m.size.X/2, m.point.Y})
 }

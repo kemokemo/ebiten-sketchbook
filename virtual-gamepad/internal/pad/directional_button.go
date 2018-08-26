@@ -17,6 +17,10 @@ const (
 	shortMargin = 20
 )
 
+var (
+	selectColor = color.RGBA{0, 148, 255, 255}
+)
+
 // debugirectionalButton is the button of the directional pad.
 type directionalButton struct {
 	baseImg    *ebiten.Image
@@ -53,7 +57,7 @@ func newDirectionalButton(direc Direction) (*directionalButton, error) {
 
 	d.selectedOp = &ebiten.DrawImageOptions{}
 	d.selectedOp.GeoM.Concat(d.normalOp.GeoM)
-	d.selectedOp.ColorM.Scale(colorScale(color.RGBA{0, 148, 255, 255}))
+	d.selectedOp.ColorM.Scale(colorScale(selectColor))
 
 	return d, nil
 }
