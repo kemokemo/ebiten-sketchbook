@@ -10,6 +10,8 @@ import (
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/pad"
 )
 
+const bulletsCount = 30
+
 // MainCharacter is the main character for users to control.
 type MainCharacter struct {
 	baseImg      *ebiten.Image
@@ -17,7 +19,7 @@ type MainCharacter struct {
 	size         image.Point
 	area         image.Rectangle
 	point        image.Point
-	bullets      [30]*bullet.Bullet
+	bullets      [bulletsCount]*bullet.Bullet
 	bulletsIndex int
 }
 
@@ -46,7 +48,7 @@ func NewMainCharacter(area image.Rectangle) (*MainCharacter, error) {
 }
 
 func (m *MainCharacter) createBullets(area image.Rectangle) error {
-	for index := 0; index < len(m.bullets); index++ {
+	for index := 0; index < bulletsCount; index++ {
 		b, err := bullet.NewBullet(image.Point{0, -3}, area)
 		if err != nil {
 			return err
@@ -70,9 +72,11 @@ func (m *MainCharacter) Size() image.Point {
 }
 
 // Update updates the internal state.
-func (m *MainCharacter) Update() {
+// Please pass the direction of the pad to move this character.
+func (m *MainCharacter) Update(direction pad.Direction) {
 	// TODO: Make a judgment with enemy bullets
-	for index := 0; index < len(m.bullets); index++ {
+	m.move(direction)
+	for index := 0; index < bulletsCount; index++ {
 		m.bullets[index].Update()
 	}
 }
@@ -85,7 +89,7 @@ func (m *MainCharacter) Draw(screen *ebiten.Image) error {
 	}
 
 	var e error
-	for index := 0; index < len(m.bullets); index++ {
+	for index := 0; index < bulletsCount; index++ {
 		e = m.bullets[index].Draw(screen)
 		if e != nil {
 			return e
@@ -94,10 +98,10 @@ func (m *MainCharacter) Draw(screen *ebiten.Image) error {
 	return nil
 }
 
-// Move moves this character regarding the direction.
+// move moves this character regarding the direction.
 // Do not move if the destination is outside the area.
-func (m *MainCharacter) Move(direc pad.Direction) {
-	switch direc {
+func (m *MainCharacter) move(d pad.Direction) {
+	switch d {
 	case pad.UpperLeft:
 		m.move4direction(pad.Upper)
 		m.move4direction(pad.Left)
@@ -111,7 +115,7 @@ func (m *MainCharacter) Move(direc pad.Direction) {
 		m.move4direction(pad.Lower)
 		m.move4direction(pad.Right)
 	default:
-		m.move4direction(direc)
+		m.move4direction(d)
 	}
 }
 
@@ -142,7 +146,7 @@ func (m *MainCharacter) getMove(d pad.Direction) image.Point {
 
 // Fire fires some bullets.
 func (m *MainCharacter) Fire() {
-	if m.bulletsIndex < len(m.bullets)-1 {
+	if m.bulletsIndex < bulletsCount-1 {
 		m.bulletsIndex++
 	} else {
 		m.bulletsIndex = 0

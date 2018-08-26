@@ -123,7 +123,7 @@ func (g *GameScene) Update() error {
 	if err != nil {
 		return err
 	}
-	g.character.Move(g.dpad.GetDirection())
+	g.character.Update(g.dpad.GetDirection())
 
 	g.aButton.Update()
 	g.bButton.Update()
