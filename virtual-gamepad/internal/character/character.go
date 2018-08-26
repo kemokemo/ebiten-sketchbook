@@ -21,6 +21,7 @@ type MainCharacter struct {
 	point        image.Point
 	bullets      [bulletsCount]*bullet.Bullet
 	bulletsIndex int
+	bulletSize   image.Point
 }
 
 // NewMainCharacter returns a character.
@@ -37,7 +38,7 @@ func NewMainCharacter(area image.Rectangle) (*MainCharacter, error) {
 		return nil, err
 	}
 	w, h := m.baseImg.Size()
-	m.size = image.Point{X: w, Y: h}
+	m.size = image.Point{w, h}
 	m.normalOp = &ebiten.DrawImageOptions{}
 
 	err = m.createBullets(area)
@@ -54,6 +55,10 @@ func (m *MainCharacter) createBullets(area image.Rectangle) error {
 			return err
 		}
 		m.bullets[index] = b
+
+		if index == 0 {
+			m.bulletSize = b.Size()
+		}
 	}
 	return nil
 }
@@ -151,6 +156,8 @@ func (m *MainCharacter) Fire() {
 	} else {
 		m.bulletsIndex = 0
 	}
-	m.bullets[m.bulletsIndex].Fire(image.Point{
-		m.point.X + m.size.X/2, m.point.Y})
+	m.bullets[m.bulletsIndex].Fire(
+		image.Point{
+			m.point.X + m.size.X/2 - m.bulletSize.X/2,
+			m.point.Y - m.bulletSize.Y/2})
 }

@@ -16,6 +16,7 @@ type Bullet struct {
 	point    image.Point
 	velocity image.Point
 	area     image.Rectangle
+	size     image.Point
 }
 
 // NewBullet returns a new Bullet.
@@ -30,6 +31,8 @@ func NewBullet(velocity image.Point, area image.Rectangle) (*Bullet, error) {
 	if err != nil {
 		return nil, err
 	}
+	w, h := b.baseImg.Size()
+	b.size = image.Point{w, h}
 
 	b.op = &ebiten.DrawImageOptions{}
 	return b, nil
@@ -77,4 +80,9 @@ func (b *Bullet) Fire(point image.Point) {
 // GetRectangle returns the ractangle of this bullet.
 func (b *Bullet) GetRectangle() image.Rectangle {
 	return b.op.SourceRect.Bounds()
+}
+
+// Size returns the size of this bullet.
+func (b *Bullet) Size() image.Point {
+	return b.size
 }
