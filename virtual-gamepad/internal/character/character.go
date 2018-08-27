@@ -18,7 +18,7 @@ type MainCharacter struct {
 	normalOp     *ebiten.DrawImageOptions
 	size         image.Point
 	area         image.Rectangle
-	point        image.Point
+	rectangle    image.Rectangle
 	bullets      [bulletsCount]*bullet.Bullet
 	bulletsIndex int
 	bulletSize   image.Point
@@ -38,6 +38,7 @@ func NewMainCharacter(area image.Rectangle) (*MainCharacter, error) {
 		return nil, err
 	}
 	w, h := m.baseImg.Size()
+	m.rectangle = image.Rect(0, 0, w, h)
 	m.size = image.Point{w, h}
 	m.normalOp = &ebiten.DrawImageOptions{}
 
@@ -65,10 +66,12 @@ func (m *MainCharacter) createBullets(area image.Rectangle) error {
 
 // SetLocation sets the location to draw this character.
 func (m *MainCharacter) SetLocation(point image.Point) {
-	m.point = point
+	sub := point.Sub(m.rectangle.Min)
+	m.rectangle.Min = point
+	m.rectangle.Max = m.rectangle.Max.Add(sub)
 
 	m.normalOp.GeoM.Reset()
-	m.normalOp.GeoM.Translate(float64(m.point.X), float64(m.point.Y))
+	m.normalOp.GeoM.Translate(float64(point.X), float64(point.Y))
 }
 
 // Size returns the size of this character.
@@ -107,6 +110,8 @@ func (m *MainCharacter) Draw(screen *ebiten.Image) error {
 // Do not move if the destination is outside the area.
 func (m *MainCharacter) move(d pad.Direction) {
 	switch d {
+	case pad.None:
+		return
 	case pad.UpperLeft:
 		m.move4direction(pad.Upper)
 		m.move4direction(pad.Left)
@@ -126,11 +131,12 @@ func (m *MainCharacter) move(d pad.Direction) {
 
 func (m *MainCharacter) move4direction(d pad.Direction) {
 	movement := m.getMove((d))
-	moved := m.point.Add(movement)
+	moved := m.rectangle.Add(movement)
 	if !moved.In(m.area) {
 		return
 	}
-	m.point = moved
+
+	m.rectangle = moved
 	m.normalOp.GeoM.Translate(float64(movement.X), float64(movement.Y))
 }
 
@@ -158,6 +164,6 @@ func (m *MainCharacter) Fire() {
 	}
 	m.bullets[m.bulletsIndex].Fire(
 		image.Point{
-			m.point.X + m.size.X/2 - m.bulletSize.X/2,
-			m.point.Y - m.bulletSize.Y/2})
+			m.rectangle.Min.X + m.size.X/2 - m.bulletSize.X/2,
+			m.rectangle.Min.Y - m.bulletSize.Y/2})
 }

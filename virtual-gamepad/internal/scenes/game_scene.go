@@ -125,6 +125,14 @@ func (g *GameScene) Update() error {
 	}
 	g.character.Update(g.dpad.GetDirection())
 
+	// TODO: test code
+	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
+		g.character.Update(pad.Left)
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyRight) {
+		g.character.Update(pad.Right)
+	}
+
 	g.aButton.Update()
 	g.bButton.Update()
 	if g.bButton.IsTriggered() {
