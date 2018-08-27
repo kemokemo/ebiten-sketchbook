@@ -18,7 +18,7 @@ type GameScene struct {
 	baseImg   *ebiten.Image
 	op        *ebiten.DrawImageOptions
 	window    *ui.FrameWindow
-	character *character.MainCharacter
+	character *character.Player
 }
 
 // NewGameScene returns a new GemeScene instance.
@@ -101,7 +101,7 @@ func (g *GameScene) createWindow(width, height int) error {
 }
 
 func (g *GameScene) createCharacter(area image.Rectangle) error {
-	c, err := character.NewMainCharacter(area)
+	c, err := character.NewPlayer(area)
 	if err != nil {
 		return err
 	}

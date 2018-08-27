@@ -12,8 +12,8 @@ import (
 
 const bulletsCount = 30
 
-// MainCharacter is the main character for users to control.
-type MainCharacter struct {
+// Player is the player character.
+type Player struct {
 	baseImg      *ebiten.Image
 	normalOp     *ebiten.DrawImageOptions
 	size         image.Point
@@ -24,10 +24,10 @@ type MainCharacter struct {
 	bulletSize   image.Point
 }
 
-// NewMainCharacter returns a character.
+// NewPlayer returns a new Player.
 // Please set the area of movement.
-func NewMainCharacter(area image.Rectangle) (*MainCharacter, error) {
-	m := &MainCharacter{area: area}
+func NewPlayer(area image.Rectangle) (*Player, error) {
+	m := &Player{area: area}
 
 	img, _, err := image.Decode(bytes.NewReader(images.Fighter_png))
 	if err != nil {
@@ -49,7 +49,7 @@ func NewMainCharacter(area image.Rectangle) (*MainCharacter, error) {
 	return m, nil
 }
 
-func (m *MainCharacter) createBullets(area image.Rectangle) error {
+func (m *Player) createBullets(area image.Rectangle) error {
 	for index := 0; index < bulletsCount; index++ {
 		b, err := bullet.NewBullet(image.Point{0, -3}, area)
 		if err != nil {
@@ -65,7 +65,7 @@ func (m *MainCharacter) createBullets(area image.Rectangle) error {
 }
 
 // SetLocation sets the location to draw this character.
-func (m *MainCharacter) SetLocation(point image.Point) {
+func (m *Player) SetLocation(point image.Point) {
 	sub := point.Sub(m.rectangle.Min)
 	m.rectangle.Min = point
 	m.rectangle.Max = m.rectangle.Max.Add(sub)
@@ -75,13 +75,13 @@ func (m *MainCharacter) SetLocation(point image.Point) {
 }
 
 // Size returns the size of this character.
-func (m *MainCharacter) Size() image.Point {
+func (m *Player) Size() image.Point {
 	return m.size
 }
 
 // Update updates the internal state.
 // Please pass the direction of the pad to move this character.
-func (m *MainCharacter) Update(direction pad.Direction) {
+func (m *Player) Update(direction pad.Direction) {
 	// TODO: Make a judgment with enemy bullets
 	m.move(direction)
 	for index := 0; index < bulletsCount; index++ {
@@ -90,7 +90,7 @@ func (m *MainCharacter) Update(direction pad.Direction) {
 }
 
 // Draw draws this character.
-func (m *MainCharacter) Draw(screen *ebiten.Image) error {
+func (m *Player) Draw(screen *ebiten.Image) error {
 	err := screen.DrawImage(m.baseImg, m.normalOp)
 	if err != nil {
 		return err
@@ -108,7 +108,7 @@ func (m *MainCharacter) Draw(screen *ebiten.Image) error {
 
 // move moves this character regarding the direction.
 // Do not move if the destination is outside the area.
-func (m *MainCharacter) move(d pad.Direction) {
+func (m *Player) move(d pad.Direction) {
 	switch d {
 	case pad.None:
 		return
@@ -129,7 +129,7 @@ func (m *MainCharacter) move(d pad.Direction) {
 	}
 }
 
-func (m *MainCharacter) move4direction(d pad.Direction) {
+func (m *Player) move4direction(d pad.Direction) {
 	movement := m.getMove((d))
 	moved := m.rectangle.Add(movement)
 	if !moved.In(m.area) {
@@ -140,7 +140,7 @@ func (m *MainCharacter) move4direction(d pad.Direction) {
 	m.normalOp.GeoM.Translate(float64(movement.X), float64(movement.Y))
 }
 
-func (m *MainCharacter) getMove(d pad.Direction) image.Point {
+func (m *Player) getMove(d pad.Direction) image.Point {
 	switch d {
 	case pad.Left:
 		return image.Point{-2, 0}
@@ -156,7 +156,7 @@ func (m *MainCharacter) getMove(d pad.Direction) image.Point {
 }
 
 // Fire fires some bullets.
-func (m *MainCharacter) Fire() {
+func (m *Player) Fire() {
 	if m.bulletsIndex < bulletsCount-1 {
 		m.bulletsIndex++
 	} else {
