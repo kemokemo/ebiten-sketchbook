@@ -22,10 +22,5 @@ func colorScale(clr color.Color) (rf, gf, bf, af float64) {
 
 func isTouched(touchedID int, bounds image.Rectangle) bool {
 	x, y := ebiten.TouchPosition(touchedID)
-	min := bounds.Min
-	max := bounds.Max
-	if min.X < x && x < max.X && min.Y < y && y < max.Y {
-		return true
-	}
-	return false
+	return image.Point{X: x, Y: y}.In(bounds)
 }

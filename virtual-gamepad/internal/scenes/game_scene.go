@@ -70,7 +70,7 @@ func (g *GameScene) createButtons(width, height int) error {
 	}
 	g.dpad.SetLocation(10, height-130)
 
-	g.aButton, err = pad.NewTriggerButton(pad.Pressing)
+	g.aButton, err = pad.NewTriggerButton(pad.JustRelease)
 	if err != nil {
 		return err
 	}

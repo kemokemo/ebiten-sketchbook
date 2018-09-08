@@ -24,6 +24,13 @@ func NewTriggerButton(tt TriggerType) (TriggerButton, error) {
 	sop := &ebiten.DrawImageOptions{}
 	sop.ColorM.Scale(colorScale(color.RGBA{0, 148, 255, 255}))
 	switch tt {
+	case JustRelease:
+		return &JustReleaseButton{
+			baseImg:    img,
+			normalOp:   &ebiten.DrawImageOptions{},
+			selectedOp: sop,
+			touches:    make(map[*touch]struct{}),
+		}, nil
 	case Pressing:
 		return &PressingButton{
 			baseImg:    img,
