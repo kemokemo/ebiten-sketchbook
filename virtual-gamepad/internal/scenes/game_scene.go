@@ -13,8 +13,8 @@ import (
 // GameScene is the scene of the main game screen.
 type GameScene struct {
 	dpad      *pad.DirectionalPad
-	aButton   *pad.TriggerButton
-	bButton   *pad.TriggerButton
+	aButton   pad.TriggerButton
+	bButton   pad.TriggerButton
 	baseImg   *ebiten.Image
 	op        *ebiten.DrawImageOptions
 	window    *ui.FrameWindow
@@ -70,13 +70,13 @@ func (g *GameScene) createButtons(width, height int) error {
 	}
 	g.dpad.SetLocation(10, height-130)
 
-	g.aButton, err = pad.NewTriggerButton(pad.AButton)
+	g.aButton, err = pad.NewTriggerButton(pad.Pressing)
 	if err != nil {
 		return err
 	}
 	g.aButton.SetLocation(width-120, height-220)
 
-	g.bButton, err = pad.NewTriggerButton(pad.BButton)
+	g.bButton, err = pad.NewTriggerButton(pad.Pressing)
 	if err != nil {
 		return err
 	}
@@ -124,16 +124,10 @@ func (g *GameScene) Update() error {
 		return err
 	}
 	g.character.Update(g.dpad.GetDirection())
-
-	// TODO: test code
-	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		g.character.Update(pad.Left)
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		g.character.Update(pad.Right)
-	}
-
 	g.aButton.Update()
+	if g.aButton.IsTriggered() {
+		g.character.ChangeMode()
+	}
 	g.bButton.Update()
 	if g.bButton.IsTriggered() {
 		g.character.Fire()
