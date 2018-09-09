@@ -13,6 +13,7 @@ type PressingButton struct {
 	normalOp    *ebiten.DrawImageOptions
 	selectedOp  *ebiten.DrawImageOptions
 	rectangle   image.Rectangle
+	isSelected  bool
 	isTriggered bool
 }
 
@@ -28,6 +29,27 @@ func (b *PressingButton) SetLocation(x, y int) {
 // Update updates the internal state of this button.
 // Please call this before using IsTriggered method.
 func (b *PressingButton) Update() {
+	b.updateSelect()
+	b.updateTrigger()
+}
+
+func (b *PressingButton) updateSelect() {
+	b.isSelected = false
+
+	IDs := ebiten.TouchIDs()
+	if len(IDs) == 0 {
+		return
+	}
+
+	for i := range IDs {
+		if isTouched(IDs[i], b.rectangle) {
+			b.isSelected = true
+			return
+		}
+	}
+}
+
+func (b *PressingButton) updateTrigger() {
 	b.isTriggered = false
 	IDs := ebiten.TouchIDs()
 	if len(IDs) == 0 {
@@ -50,7 +72,7 @@ func (b *PressingButton) IsTriggered() bool {
 
 // Draw draws this button.
 func (b *PressingButton) Draw(screen *ebiten.Image) error {
-	if b.isTriggered {
+	if b.isSelected {
 		return screen.DrawImage(b.baseImg, b.selectedOp)
 	}
 	return screen.DrawImage(b.baseImg, b.normalOp)

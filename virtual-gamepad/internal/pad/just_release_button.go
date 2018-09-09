@@ -14,6 +14,7 @@ type JustReleaseButton struct {
 	normalOp    *ebiten.DrawImageOptions
 	selectedOp  *ebiten.DrawImageOptions
 	rectangle   image.Rectangle
+	isSelected  bool
 	isTriggered bool
 	touches     map[*touch]struct{}
 }
@@ -30,6 +31,27 @@ func (b *JustReleaseButton) SetLocation(x, y int) {
 // Update updates the internal state of this button.
 // Please call this before using IsTriggered method.
 func (b *JustReleaseButton) Update() {
+	b.updateSelect()
+	b.updateTrigger()
+}
+
+func (b *JustReleaseButton) updateSelect() {
+	b.isSelected = false
+
+	IDs := ebiten.TouchIDs()
+	if len(IDs) == 0 {
+		return
+	}
+
+	for i := range IDs {
+		if isTouched(IDs[i], b.rectangle) {
+			b.isSelected = true
+			return
+		}
+	}
+}
+
+func (b *JustReleaseButton) updateTrigger() {
 	b.isTriggered = false
 
 	IDs := inpututil.JustPressedTouchIDs()
@@ -60,7 +82,7 @@ func (b *JustReleaseButton) IsTriggered() bool {
 
 // Draw draws this button.
 func (b *JustReleaseButton) Draw(screen *ebiten.Image) error {
-	if b.isTriggered {
+	if b.isSelected {
 		return screen.DrawImage(b.baseImg, b.selectedOp)
 	}
 	return screen.DrawImage(b.baseImg, b.normalOp)
