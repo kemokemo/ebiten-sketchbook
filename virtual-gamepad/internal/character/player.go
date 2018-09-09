@@ -10,30 +10,33 @@ import (
 
 // Player is the player character.
 type Player struct {
-	baseImg   *ebiten.Image
-	op        *ebiten.DrawImageOptions
-	normalOp  *ebiten.DrawImageOptions
-	anotherOp *ebiten.DrawImageOptions
-	size      image.Point
-	area      image.Rectangle
-	rectangle image.Rectangle
-	gun       *gun.Gun
+	img        *ebiten.Image
+	baseImg    *ebiten.Image
+	anotherImg *ebiten.Image
+	op         *ebiten.DrawImageOptions
+	size       image.Point
+	area       image.Rectangle
+	rectangle  image.Rectangle
+	gun        *gun.Gun
+	baseGun    *gun.Gun
+	anotherGun *gun.Gun
 }
 
 // NewPlayer returns a new Player.
 // Please set the area of movement.
-func NewPlayer(img *ebiten.Image, area image.Rectangle, gun *gun.Gun) (*Player, error) {
+func NewPlayer(img, anotherImg *ebiten.Image, area image.Rectangle, bGun, aGun *gun.Gun) (*Player, error) {
 	w, h := img.Size()
-	op := &ebiten.DrawImageOptions{}
 	return &Player{
-		baseImg:   img,
-		op:        op,
-		normalOp:  op,
-		anotherOp: &ebiten.DrawImageOptions{},
-		size:      image.Point{w, h},
-		area:      area,
-		rectangle: image.Rect(0, 0, w, h),
-		gun:       gun,
+		img:        img,
+		baseImg:    img,
+		anotherImg: anotherImg,
+		op:         &ebiten.DrawImageOptions{},
+		size:       image.Point{w, h},
+		area:       area,
+		rectangle:  image.Rect(0, 0, w, h),
+		gun:        bGun,
+		baseGun:    bGun,
+		anotherGun: aGun,
 	}, nil
 }
 
@@ -43,11 +46,8 @@ func (p *Player) SetLocation(point image.Point) {
 	p.rectangle.Min = point
 	p.rectangle.Max = p.rectangle.Max.Add(sub)
 
-	p.normalOp.GeoM.Reset()
-	p.normalOp.GeoM.Translate(float64(point.X), float64(point.Y))
-	p.anotherOp.GeoM.Reset()
-	p.anotherOp.GeoM.Translate(float64(point.X), float64(point.Y))
-	p.anotherOp.ColorM.Scale(0.5, 0.2, 0.1, 1.0)
+	p.op.GeoM.Reset()
+	p.op.GeoM.Translate(float64(point.X), float64(point.Y))
 }
 
 // Size returns the size of this character.
@@ -65,7 +65,7 @@ func (p *Player) Update(direction pad.Direction) {
 
 // Draw draws this character.
 func (p *Player) Draw(screen *ebiten.Image) error {
-	err := screen.DrawImage(p.baseImg, p.op)
+	err := screen.DrawImage(p.img, p.op)
 	if err != nil {
 		return err
 	}
@@ -109,8 +109,7 @@ func (p *Player) move4direction(d pad.Direction) {
 	}
 
 	p.rectangle = moved
-	p.normalOp.GeoM.Translate(float64(movement.X), float64(movement.Y))
-	p.anotherOp.GeoM.Translate(float64(movement.X), float64(movement.Y))
+	p.op.GeoM.Translate(float64(movement.X), float64(movement.Y))
 }
 
 func (p *Player) getMove(d pad.Direction) image.Point {
@@ -137,9 +136,15 @@ func (p *Player) Fire() {
 
 // ChangeMode changes the mode of this character.
 func (p *Player) ChangeMode() {
-	if p.op == p.normalOp {
-		p.op = p.anotherOp
+	if p.img == p.baseImg {
+		p.img = p.anotherImg
 	} else {
-		p.op = p.normalOp
+		p.img = p.baseImg
+	}
+
+	if p.gun == p.baseGun {
+		p.gun = p.anotherGun
+	} else {
+		p.gun = p.baseGun
 	}
 }

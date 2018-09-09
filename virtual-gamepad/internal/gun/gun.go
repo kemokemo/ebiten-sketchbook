@@ -24,8 +24,8 @@ type Gun struct {
 
 // NewGun returns a new gun.
 // Please sets the area of movement for bullets.
-func NewGun(img *ebiten.Image, area image.Rectangle) (*Gun, error) {
-	g := &Gun{interval: time.Duration(noramalGunInterval)}
+func NewGun(img *ebiten.Image, area image.Rectangle, interval time.Duration) (*Gun, error) {
+	g := &Gun{interval: interval}
 	err := g.createBullets(img, area)
 	if err != nil {
 		return nil, err

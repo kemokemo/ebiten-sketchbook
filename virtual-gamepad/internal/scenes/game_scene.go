@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"image"
 	"image/color"
+	"time"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/character"
@@ -143,7 +144,20 @@ func (g *GameScene) createCharacter(area image.Rectangle) error {
 	if err != nil {
 		return err
 	}
-	gun, err := gun.NewGun(bImg, area)
+	bgun, err := gun.NewGun(bImg, area, time.Duration(300*time.Millisecond))
+	if err != nil {
+		return err
+	}
+
+	img, _, err = image.Decode(bytes.NewReader(images.Laser_png))
+	if err != nil {
+		return err
+	}
+	lImg, err := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+	if err != nil {
+		return err
+	}
+	agun, err := gun.NewGun(lImg, area, time.Duration(600*time.Millisecond))
 	if err != nil {
 		return err
 	}
@@ -157,7 +171,16 @@ func (g *GameScene) createCharacter(area image.Rectangle) error {
 		return err
 	}
 
-	g.character, err = character.NewPlayer(pImg, area, gun)
+	img, _, err = image.Decode(bytes.NewReader(images.Another_fighter_png))
+	if err != nil {
+		return err
+	}
+	aImg, err := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+	if err != nil {
+		return err
+	}
+
+	g.character, err = character.NewPlayer(pImg, aImg, area, bgun, agun)
 	if err != nil {
 		return err
 	}
