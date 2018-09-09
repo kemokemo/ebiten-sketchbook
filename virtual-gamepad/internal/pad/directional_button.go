@@ -1,15 +1,12 @@
 package pad
 
 import (
-	"bytes"
 	"image"
 	"math"
 
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten"
-
-	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/images"
 )
 
 const (
@@ -32,22 +29,15 @@ type directionalButton struct {
 }
 
 // newDirectionalButton returns a new DirectionalButton.
-func newDirectionalButton(direc Direction) (*directionalButton, error) {
-	d := &directionalButton{}
-	img, _, err := image.Decode(bytes.NewReader(images.Directional_button_png))
-	if err != nil {
-		return nil, err
-	}
-	d.baseImg, err = ebiten.NewImageFromImage(img, ebiten.FilterDefault)
-	if err != nil {
-		return nil, err
+func newDirectionalButton(img *ebiten.Image, direc Direction) (*directionalButton, error) {
+	d := &directionalButton{
+		baseImg:   img,
+		direction: direc,
 	}
 
 	w, h := d.baseImg.Size()
 	halfW := float64(w) / 2
 	halfH := float64(h) / 2
-
-	d.direction = direc
 	degree := getDirectionDegree(direc)
 
 	d.normalOp = &ebiten.DrawImageOptions{}

@@ -1,11 +1,9 @@
 package bullet
 
 import (
-	"bytes"
 	"image"
 
 	"github.com/hajimehoshi/ebiten"
-	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/images"
 )
 
 // Bullet is the bullet triggered by characters.
@@ -21,21 +19,15 @@ type Bullet struct {
 
 // NewBullet returns a new Bullet.
 // Please set the velocity of this bullet and the area of movement.
-func NewBullet(velocity image.Point, area image.Rectangle) (*Bullet, error) {
-	b := &Bullet{velocity: velocity, area: area}
-	img, _, err := image.Decode(bytes.NewReader(images.Bullet_png))
-	if err != nil {
-		return nil, err
-	}
-	b.baseImg, err = ebiten.NewImageFromImage(img, ebiten.FilterDefault)
-	if err != nil {
-		return nil, err
-	}
-	w, h := b.baseImg.Size()
-	b.size = image.Point{w, h}
-
-	b.op = &ebiten.DrawImageOptions{}
-	return b, nil
+func NewBullet(img *ebiten.Image, velocity image.Point, area image.Rectangle) (*Bullet, error) {
+	w, h := img.Size()
+	return &Bullet{
+		baseImg:  img,
+		velocity: velocity,
+		area:     area,
+		size:     image.Point{w, h},
+		op:       &ebiten.DrawImageOptions{},
+	}, nil
 }
 
 // Update update the internal state of this bullet.

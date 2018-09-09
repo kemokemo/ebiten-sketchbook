@@ -1,12 +1,9 @@
 package pad
 
 import (
-	"bytes"
-	"image"
 	"sort"
 
 	"github.com/hajimehoshi/ebiten"
-	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/images"
 )
 
 // DirectionalPad is the directional pad for a game.
@@ -18,34 +15,27 @@ type DirectionalPad struct {
 }
 
 // NewDirectionalPad returns a new DirectionalPad.
-func NewDirectionalPad() (*DirectionalPad, error) {
-	dp := &DirectionalPad{}
-	img, _, err := image.Decode(bytes.NewReader(images.Directional_pad_png))
-	if err != nil {
-		return nil, err
-	}
-	dp.baseImg, err = ebiten.NewImageFromImage(img, ebiten.FilterDefault)
-	if err != nil {
-		return nil, err
+func NewDirectionalPad(pad, button *ebiten.Image) (*DirectionalPad, error) {
+	dp := &DirectionalPad{
+		baseImg: pad,
+		op:      &ebiten.DrawImageOptions{},
 	}
 
-	dp.op = &ebiten.DrawImageOptions{}
-
-	err = dp.createButtons()
+	err := dp.createButtons(button)
 	if err != nil {
 		return nil, err
 	}
 	return dp, nil
 }
 
-func (dp *DirectionalPad) createButtons() error {
+func (dp *DirectionalPad) createButtons(img *ebiten.Image) error {
 	if dp.buttons == nil {
 		dp.buttons = make(map[Direction]*directionalButton, 4)
 	}
 
 	ds := []Direction{Left, Upper, Right, Lower}
 	for _, direc := range ds {
-		b, err := newDirectionalButton(direc)
+		b, err := newDirectionalButton(img, direc)
 		if err != nil {
 			return err
 		}

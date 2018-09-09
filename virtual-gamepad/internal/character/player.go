@@ -1,12 +1,10 @@
 package character
 
 import (
-	"bytes"
 	"image"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/gun"
-	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/images"
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/pad"
 )
 
@@ -24,29 +22,19 @@ type Player struct {
 
 // NewPlayer returns a new Player.
 // Please set the area of movement.
-func NewPlayer(area image.Rectangle) (*Player, error) {
-	p := &Player{area: area}
-
-	img, _, err := image.Decode(bytes.NewReader(images.Fighter_png))
-	if err != nil {
-		return nil, err
-	}
-	p.baseImg, err = ebiten.NewImageFromImage(img, ebiten.FilterDefault)
-	if err != nil {
-		return nil, err
-	}
-	w, h := p.baseImg.Size()
-	p.rectangle = image.Rect(0, 0, w, h)
-	p.size = image.Point{w, h}
-	p.normalOp = &ebiten.DrawImageOptions{}
-	p.anotherOp = &ebiten.DrawImageOptions{}
-	p.op = p.normalOp
-
-	p.gun, err = gun.NewGun(area)
-	if err != nil {
-		return nil, err
-	}
-	return p, nil
+func NewPlayer(img *ebiten.Image, area image.Rectangle, gun *gun.Gun) (*Player, error) {
+	w, h := img.Size()
+	op := &ebiten.DrawImageOptions{}
+	return &Player{
+		baseImg:   img,
+		op:        op,
+		normalOp:  op,
+		anotherOp: &ebiten.DrawImageOptions{},
+		size:      image.Point{w, h},
+		area:      area,
+		rectangle: image.Rect(0, 0, w, h),
+		gun:       gun,
+	}, nil
 }
 
 // SetLocation sets the location to draw this character.

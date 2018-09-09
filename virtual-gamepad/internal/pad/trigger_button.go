@@ -7,6 +7,18 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+// TriggerType is the type for the TriggerButton.
+type TriggerType int
+
+const (
+	// JustRelease is the button to be triggered when just released only.
+	JustRelease TriggerType = iota
+	// Pressing is the button to be triggered during pressed every frame
+	Pressing
+	// JustPressed is the button to be triggered when just pressed only.
+	JustPressed
+)
+
 type TriggerButton interface {
 	SetLocation(x, y int)
 	Update()
@@ -15,12 +27,7 @@ type TriggerButton interface {
 }
 
 // NewTriggerButton returns a new TriggerButton.
-func NewTriggerButton(tt TriggerType) (TriggerButton, error) {
-	img, err := getTriggerButtonImage(tt)
-	if err != nil {
-		return nil, err
-	}
-
+func NewTriggerButton(img *ebiten.Image, tt TriggerType) (TriggerButton, error) {
 	sop := &ebiten.DrawImageOptions{}
 	sop.ColorM.Scale(colorScale(color.RGBA{0, 148, 255, 255}))
 	switch tt {

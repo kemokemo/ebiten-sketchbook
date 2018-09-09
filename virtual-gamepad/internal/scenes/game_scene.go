@@ -1,11 +1,14 @@
 package scenes
 
 import (
+	"bytes"
 	"image"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/character"
+	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/gun"
+	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/images"
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/pad"
 	"github.com/kemokemo/ebiten-sketchbook/virtual-gamepad/internal/ui"
 )
@@ -63,20 +66,51 @@ func (g *GameScene) createImage(width, height int) error {
 }
 
 func (g *GameScene) createButtons(width, height int) error {
-	var err error
-	g.dpad, err = pad.NewDirectionalPad()
+	img, _, err := image.Decode(bytes.NewReader(images.Directional_pad_png))
+	if err != nil {
+		return err
+	}
+	padImg, err := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+	if err != nil {
+		return err
+	}
+	img, _, err = image.Decode(bytes.NewReader(images.Directional_button_png))
+	if err != nil {
+		return err
+	}
+	buttonImg, err := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+	if err != nil {
+		return err
+	}
+	g.dpad, err = pad.NewDirectionalPad(padImg, buttonImg)
 	if err != nil {
 		return err
 	}
 	g.dpad.SetLocation(10, height-130)
 
-	g.aButton, err = pad.NewTriggerButton(pad.JustRelease)
+	img, _, err = image.Decode(bytes.NewReader(images.A_button_png))
+	if err != nil {
+		return err
+	}
+	aButton, err := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+	if err != nil {
+		return err
+	}
+	g.aButton, err = pad.NewTriggerButton(aButton, pad.JustRelease)
 	if err != nil {
 		return err
 	}
 	g.aButton.SetLocation(width-120, height-220)
 
-	g.bButton, err = pad.NewTriggerButton(pad.Pressing)
+	img, _, err = image.Decode(bytes.NewReader(images.B_button_png))
+	if err != nil {
+		return err
+	}
+	bButton, err := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+	if err != nil {
+		return err
+	}
+	g.bButton, err = pad.NewTriggerButton(bButton, pad.Pressing)
 	if err != nil {
 		return err
 	}
@@ -101,12 +135,32 @@ func (g *GameScene) createWindow(width, height int) error {
 }
 
 func (g *GameScene) createCharacter(area image.Rectangle) error {
-	c, err := character.NewPlayer(area)
+	img, _, err := image.Decode(bytes.NewReader(images.Bullet_png))
 	if err != nil {
 		return err
 	}
-	g.character = c
+	bImg, err := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+	if err != nil {
+		return err
+	}
+	gun, err := gun.NewGun(bImg, area)
+	if err != nil {
+		return err
+	}
 
+	img, _, err = image.Decode(bytes.NewReader(images.Fighter_png))
+	if err != nil {
+		return err
+	}
+	pImg, err := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+	if err != nil {
+		return err
+	}
+
+	g.character, err = character.NewPlayer(pImg, area, gun)
+	if err != nil {
+		return err
+	}
 	cSize := g.character.Size()
 	wSize := area.Size()
 	g.character.SetLocation(
