@@ -60,7 +60,8 @@ func (p *Player) Size() image.Point {
 func (p *Player) Update(direction pad.Direction) {
 	// TODO: Make a judgment with enemy bullets
 	p.move(direction)
-	p.gun.Update()
+	p.baseGun.Update()
+	p.anotherGun.Update()
 }
 
 // Draw draws this character.
@@ -70,7 +71,11 @@ func (p *Player) Draw(screen *ebiten.Image) error {
 		return err
 	}
 
-	err = p.gun.Draw(screen)
+	err = p.baseGun.Draw(screen)
+	if err != nil {
+		return err
+	}
+	err = p.anotherGun.Draw(screen)
 	if err != nil {
 		return err
 	}
@@ -127,14 +132,14 @@ func (p *Player) getMove(d pad.Direction) image.Point {
 	}
 }
 
-// Fire fires some bullets.
+// Fire fires onley selected gun.
 func (p *Player) Fire() {
 	p.gun.Fire(image.Point{
 		p.rectangle.Min.X + p.size.X/2,
 		p.rectangle.Min.Y})
 }
 
-// ChangeMode changes the mode of this character.
+// ChangeMode changes the image and the gun of this character.
 func (p *Player) ChangeMode() {
 	if p.img == p.baseImg {
 		p.img = p.anotherImg
